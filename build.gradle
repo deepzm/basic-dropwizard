@@ -1,0 +1,81 @@
+group 'com.aconex.fm'
+version '0.0.1-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'gradle-one-jar'
+apply plugin: 'application'
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+mainClassName = "com.example.helloworld.HelloWorldApplication"
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://repo.aconex.com/content/groups/public"
+        credentials {
+            username "deployment"
+            password "admin456"
+        }
+    }
+    maven {
+        url "http://oss.sonatype.org/content/repositories/snapshots"
+    }
+    maven {
+        url "http://oss.sonatype.org/service/local/staging/deploy/maven2/"
+    }
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.github.rholder:gradle-one-jar:1.0.3'
+    }
+}
+
+
+dependencies {
+    compile group: 'io.dropwizard', name: 'dropwizard-core', version:"$dropWizardVersion"
+    compile group: 'io.dropwizard', name: 'dropwizard-auth', version:"$dropWizardVersion"
+    compile group: 'io.dropwizard', name: 'dropwizard-assets', version:"$dropWizardVersion"
+    compile group: 'io.dropwizard', name: 'dropwizard-spdy', version:"$dropWizardVersion"
+    compile group: 'io.dropwizard', name: 'dropwizard-hibernate', version:"$dropWizardVersion"
+    compile group: 'io.dropwizard', name: 'dropwizard-migrations', version:"$dropWizardVersion"
+    compile group: 'io.dropwizard', name: 'dropwizard-views-freemarker', version:"$dropWizardVersion"
+    compile group: 'io.dropwizard', name: 'dropwizard-views-mustache', version:"$dropWizardVersion"
+    compile group: 'com.h2database', name: 'h2', version:"1.4.187"
+
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    testCompile group: 'io.dropwizard', name: 'dropwizard-testing', version: "$dropWizardVersion"
+    testCompile (group: 'org.glassfish.jersey.test-framework.providers', name: 'jersey-test-framework-provider-inmemory', version: "2.18") {
+        exclude group: 'javax.servlet', module: 'javax.servlet-api'
+        exclude group: 'junit', module: 'junit'
+    }
+    testCompile (group: 'org.glassfish.jersey.test-framework.providers', name: 'jersey-test-framework-provider-grizzly2', version: "2.18") {
+        exclude group: 'javax.servlet', module: 'javax.servlet-api'
+        exclude group: 'junit', module: 'junit'
+    }
+}
+
+// Configure the oneJar task
+task oneJar(type: OneJar) {
+    mainClass = mainClassName
+}
+
+
+// Configure the run task to start the Dropwizard service
+run {
+    args 'server', './src/main/resources/example.yml'
+
+}
+
+artifacts {
+    oneJar
+}
